@@ -5,16 +5,16 @@ pragma solidity >=0.5.0;
 
 contract seat {
     
-    string public Title;
-    string public Date;
-    uint8 public Price;
-    string public Link;
+    string Title;
+    string Date;
+    uint8 Price;
+    string Link;
     
-    uint8 public Number;
-    uint8 public Row;
+    uint8 Number;
+    uint8 Row;
     
     bool public Available = true;
-    string public Owner = "none";
+    string Owner = "none";
     
     
     constructor(string memory _Title, string memory _Date, uint8 _Price, string memory _Link, uint8 _Number, uint8 _Row) {
@@ -24,6 +24,10 @@ contract seat {
         Link = _Link;
         Number = _Number;
         Row = _Row;
+    }
+    
+    function getInfos() view public returns(string memory, string memory, uint8, string memory, uint8, uint8, bool, string memory) {
+        return (Title, Date, Price, Link, Number, Row, Available, Owner);
     }
     
     function buy(string memory name) public returns(uint){
@@ -37,7 +41,5 @@ contract seat {
         Available = true;
         Owner = "none";
     }
-    
-    
     
 }
