@@ -2,30 +2,44 @@
 
 pragma solidity ^0.8.0;
 
+contract TicketBookingSystem{
 
-contract TicketBookingSystem {
-    // Try to implement it with an struct
-    /*struct Place{
+    struct seat {
+        uint8 Price;
+        string Title;
+        string Date;
+        string Link;
         uint8 Number;
         uint8 Row;
-    }*/
-    uint8 Price;
-    string Title;
-    string Date;
-    string Link;
-    uint8 Number;
-    uint8 Row;
-    function initialize(uint8 pri, string memory tit, string memory dat, uint8 num, uint8 ro) public {
-        Price = pri;
-        Title = tit;
-        Date = dat;
-        Number = num;
-        Row = ro;
-        Link = "https://seatplan.com/";
     }
     
-    function check_initialization() public view returns(uint8, string memory, string memory, string memory, uint8, uint8){
-        return (Price, Title, Date, Link, Number, Row);
-    }
-    
+    mapping(uint256 => seat) seats;  // Map int to a seat object
+    uint256[] public seatIDs;        // Array containing IDs of the seat
+         
+
+        function initialize(uint8 price, string memory title, string memory date, uint8 num, uint8 row) public{
+            uint256 id = row*num; // Create ID generation function later 
+            seat storage newSeat = seats[id];
+            newSeat.Price = price;
+            newSeat.Title = title;
+            newSeat.Date = date;
+            newSeat.Number = num;
+            newSeat.Row = row;
+            newSeat.Link = "https://seatplan.com/";
+            seatIDs.push(id);
+        }
+        
+        function getSeat(uint256 id) public view returns (uint8, string memory, string memory, string memory, uint8, uint8){
+            seat storage s = seats[id];
+            return (s.Price, s.Title, s.Date, s.Link, s.Number, s.Row);
+        }
+        
+        
+        
+        // To be implemented
+        /*function getAllSeats() public view{
+            
+            }
+        function buy()
+            }*/
 }
