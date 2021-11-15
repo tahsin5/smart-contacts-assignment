@@ -10,7 +10,6 @@ contract TicketBookingSystem is ERC721URIStorage {
     
     using Counters for Counters.Counter;
     
-    Counters.Counter private _tokenIds;
     Counters.Counter private _itemIds;
     Counters.Counter private _itemsSold;
 
@@ -41,6 +40,18 @@ contract TicketBookingSystem is ERC721URIStorage {
         uint8 row
     );
     
+    event TicketSold (
+        uint indexed seatId,
+        address indexed nftContract,
+        address payable owner,
+        uint256 price,
+        string title,
+        string date,
+        string link,
+        uint8 number,
+        uint8 row
+    );
+    
 
     constructor() ERC721("Ticket Booking System", "TBS") {
         theatre = payable(msg.sender);
@@ -62,7 +73,7 @@ contract TicketBookingSystem is ERC721URIStorage {
         string memory date,
         uint8 number,
         uint8 row
-        ) private returns (uint256){
+        ) public view returns (uint256){
         
         uint seatAmount = _itemIds.current();
             
@@ -78,8 +89,6 @@ contract TicketBookingSystem is ERC721URIStorage {
     
     // 100000000,"test show", "01/01/1970", "test.com", 1,1
     function createTcketToSale(
-        //address nftContract,
-        //uint256 tokenId,
         uint256 price,
         string memory title,
         string memory date,
@@ -97,28 +106,10 @@ contract TicketBookingSystem is ERC721URIStorage {
     _setTokenURI(itemId, link);
     setApprovalForAll(address(this), true);
   
-    idToSeat[itemId] = Seat(
-        itemId,
-        address(this),
-        theatre,
-        price,
-        title,
-        date,
-        link,
-        number,
-        row
-        );
+    idToSeat[itemId] = Seat(itemId, address(this), theatre, price, title, date, link, number, row);
 
-    emit TicketCreated(
-        itemId,
-        address(this),
-        price,
-        title,
-        date,
-        link,
-        number,
-        row
-        );
+    emit TicketCreated(itemId, address(this), price, title, date, link, number, row);
+    
     }
     
     // "test show", "01/01/1970", 1,1
@@ -142,6 +133,8 @@ contract TicketBookingSystem is ERC721URIStorage {
         IERC721(address(this)).transferFrom(theatre, msg.sender, itemId);
         idToSeat[itemId].owner = payable(msg.sender);
         _itemsSold.increment();
+        
+        emit TicketSold(itemId, address(this), payable(msg.sender), idToSeat[itemId].price, idToSeat[itemId].title, idToSeat[itemId].date, idToSeat[itemId].link, idToSeat[itemId].number, idToSeat[itemId].row);
     
     }
     
