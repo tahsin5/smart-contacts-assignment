@@ -176,15 +176,12 @@ contract TicketBookingSystem is ERC721URIStorage {
     }
     
     
-    event Log(address indexed sender, string message);
-    event intLog(address indexed sender, uint256 message);
-    event seatLog(address indexed sender, Seat message);
     
     
     function verify(uint256 tokenID) public payable{
         address buyer = address(this);
         // require(buyer == idToSeat[tokenID].owner, "Not allowed to view")
-        emit TicketSold(tokenID, buyer, idToSeat[tokenID].owner, idToSeat[tokenID].price, idToSeat[tokenID].title, idToSeat[tokenID].date, idToSeat[tokenID].link, idToSeat[tokenID].number, idToSeat[tokenID].row);
+        emit TicketSold(tokenID, idToSeat[tokenID].nftContract, idToSeat[tokenID].owner, idToSeat[tokenID].price, idToSeat[tokenID].title, idToSeat[tokenID].date, idToSeat[tokenID].link, idToSeat[tokenID].number, idToSeat[tokenID].row);
     }
     
     
