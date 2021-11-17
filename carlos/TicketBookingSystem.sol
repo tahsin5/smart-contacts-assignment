@@ -29,6 +29,8 @@ contract TicketBookingSystem is ERC721URIStorage {
         uint8 row;
     }
     
+    
+    
     mapping(uint256 => Seat) private idToSeat;
 
     event TicketCreated (
@@ -54,6 +56,17 @@ contract TicketBookingSystem is ERC721URIStorage {
         uint8 row
     );
     
+    event TicketCancelled (
+        uint seatId,
+        address owner,
+        uint256 price,
+        string title,
+        string date,
+        string link,
+        uint8 number,
+        uint8 row,
+        string cancellation
+    );
 
     constructor() ERC721("Ticket Booking System", "TBS") {
         theatre = payable(msg.sender);
@@ -121,7 +134,7 @@ contract TicketBookingSystem is ERC721URIStorage {
         uint8 number,
         uint8 row
         ) public payable {
-
+        
         uint256 itemId = findSeat(title, date, number, row);
         require(itemId != 0, "Seat not existing");
         
@@ -130,10 +143,11 @@ contract TicketBookingSystem is ERC721URIStorage {
         
         uint price = idToSeat[itemId].price;
         require(msg.value == price, "Please submit the asking price in order to complete the purchase");
-
+        
         theatre.transfer(msg.value);
         IERC721(address(this)).transferFrom(theatre, msg.sender, itemId);
-        idToSeat[itemId].owner = payable(msg.sender);
+        //The owner is transfered to the address executing the contract
+        idToSeat[itemId].owner = payable(address(this));
         _itemsSold.increment();
         
         emit TicketSold(itemId, address(this), payable(msg.sender), idToSeat[itemId].price, idToSeat[itemId].title, idToSeat[itemId].date, idToSeat[itemId].link, idToSeat[itemId].number, idToSeat[itemId].row);
@@ -177,8 +191,31 @@ contract TicketBookingSystem is ERC721URIStorage {
     }
     
     function verify(uint256 tokenID) public payable{
-        address owner = address(this);
+        address buyer = address(this);
+        //If the address is the theatre, the token is not verifiable
+        require(buyer != theatre, "Not allowed to view");
+        emit TicketSold(tokenID, idToSeat[tokenID].nftContract, idToSeat[tokenID].owner, idToSeat[tokenID].price, idToSeat[tokenID].title, idToSeat[tokenID].date, idToSeat[tokenID].link, idToSeat[tokenID].number, idToSeat[tokenID].row);
+    }
+    
+    /*
+    function verify(uint256 tokenID) public payable{
+        address owner = idToSeat[tokenID].owner;
         require(owner != address(0), "ERC721: owner query for nonexistent token");
         emit TicketSold(tokenID, address(this), payable(theatre), idToSeat[tokenID].price, idToSeat[tokenID].title, idToSeat[tokenID].date, idToSeat[tokenID].link, idToSeat[tokenID].number, idToSeat[tokenID].row);
+    }*/
+    
+    function refund(string memory title,
+        string memory date,
+        uint8 number,
+        uint8 row
+        ) public payable{
+        //To refund we just need to transfer the token to the theatre again
+        uint256 itemId = findSeat(title, date, number, row);
+        require(itemId != 0, "Seat not existing");
+        require(theatre != idToSeat[itemId].owner, "Seat not sold");
+        idToSeat[itemId].owner = theatre;
+        
+        emit TicketCancelled(itemId, idToSeat[itemId].owner, idToSeat[itemId].price, idToSeat[itemId].title, idToSeat[itemId].date, idToSeat[itemId].link, idToSeat[itemId].number, idToSeat[itemId].row, "Show cancelled");
+        
     }
 }
