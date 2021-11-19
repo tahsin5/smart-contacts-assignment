@@ -200,11 +200,6 @@ contract TicketBookingSystem is ERC721URIStorage {
     }
     
     
-    event Log(address indexed sender, string message);
-    event intLog(address indexed sender, uint256 message);
-    event seatLog(address indexed sender, Seat message);
-    
-    
     function verify(uint256 tokenID) public payable{
         // address buyer = address(this);
         // require(buyer == idToSeat[tokenID].owner, "Not allowed to view")
@@ -249,8 +244,8 @@ contract TicketBookingSystem is ERC721URIStorage {
         require(owner_B != theatre, "Seat has not been sold yet");
         
         
-        setApprovalForAll(idToSeat[itemIdA].nftContract, true);
-        setApprovalForAll(idToSeat[itemIdB].nftContract, true);
+        // setApprovalForAll(idToSeat[itemIdA].nftContract, true);
+        // setApprovalForAll(idToSeat[itemIdB].nftContract, true);
         IERC721(address(this)).transferFrom(owner_A, owner_B, itemIdA);
         IERC721(address(this)).transferFrom(owner_B, owner_A, itemIdB);
         
@@ -270,8 +265,10 @@ contract TicketBookingSystem is ERC721URIStorage {
             
         // Case B: A has token, B has coins
         // Call only from B,send ticket price as value
-        //
-
+        // Approve the nft contract address beforehand
+        
+        
+        
         uint256 itemId = findSeat(title, date, number, row);
         address payable owner = idToSeat[itemId].owner;
         require(owner != theatre, "Seat has not been sold yet");
@@ -279,6 +276,8 @@ contract TicketBookingSystem is ERC721URIStorage {
         uint price = idToSeat[itemId].price;
         require(msg.value == price, "Please send the asking price for the seat");
         
+        // IERC721(address(this)).approve(idToSeat[itemId].nftContract, itemId);
+        // setApprovalForAll(idToSeat[itemIdA].nftContract, true);
         IERC721(address(this)).transferFrom(owner, msg.sender, itemId);
         owner.transfer(msg.value);
         idToSeat[itemId].owner = payable(msg.sender);
@@ -287,9 +286,4 @@ contract TicketBookingSystem is ERC721URIStorage {
         
     }
         
-        
-        
-    
-    
-  
 }
