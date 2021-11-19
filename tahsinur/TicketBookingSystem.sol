@@ -233,6 +233,7 @@ contract TicketBookingSystem is ERC721URIStorage {
         uint8 rowB) public payable{
         
         // Case A: Both have tokens
+        // Approve the nft contracts address beforehand
         
         uint256 itemIdA = findSeat(titleA, dateA, numberA, rowA);
         uint256 itemIdB = findSeat(titleB, dateB, numberB, rowB);
